@@ -16,7 +16,7 @@ jobs:
 
     - name: Build project
       run: |
-        gem install bundler
+        gem install bundler -v 2.4.22
         bundle install
         bundle exec rake
 
@@ -32,6 +32,16 @@ jobs:
       pull-requests: write # Required to automatically comment on PRs for new policy violations
     steps:
     - uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '2.7' # Not needed with a .ruby-version file
+        #bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
+    - name: Build project
+      run: |
+        gem install bundler -v 2.4.22
 
     - name: Run security scan
       uses: endorlabs/github-action@v1
