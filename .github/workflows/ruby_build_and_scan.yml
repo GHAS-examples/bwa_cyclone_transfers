@@ -1,0 +1,36 @@
+name: Ruby Build and Security Scan
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+
+    - name: Build project
+      run: |
+        gem install bundler
+        bundle install
+        bundle exec rake
+
+  security_scan:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run security scan
+      uses: endorlabs/github-action@v1
+      with:
+        args: scan --sarif findings.sarif
+
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+        sarif_file: findings.sarif
