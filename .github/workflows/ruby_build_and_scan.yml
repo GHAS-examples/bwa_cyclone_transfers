@@ -21,8 +21,15 @@ jobs:
         bundle exec rake
 
   security_scan:
-    #needs: build
+    #needs: build    
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write # Used to upload Sarif artifact to GitHub
+      contents: read # Used to check out a private repository
+      actions: read # Required for private repositories to upload Sarif files. GitHub Advanced Security licenses are required.
+      id-token: write # Used for keyless authentication with Endor Labs
+      issues: write # Required to automatically comment on PRs for new policy violations
+      pull-requests: write # Required to automatically comment on PRs for new policy violations
     steps:
     - uses: actions/checkout@v4
 
@@ -30,6 +37,12 @@ jobs:
       uses: endorlabs/github-action@v1
       with:
         args: scan --sarif findings.sarif
+        namespace: 'rob-test' # Replace with your Endor Labs tenant namespace
+        scan_dependencies: true
+        scan_secrets: true
+        pr: false
+        scan_summary_output_type: 'table'
+        sarif_file: 'findings.sarif'
 
     - name: Upload SARIF file
       uses: github/codeql-action/upload-sarif@v1
